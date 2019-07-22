@@ -11,9 +11,6 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
-import net.gotev.uploadservice.MultipartUploadRequest;
-import net.gotev.uploadservice.UploadNotificationConfig;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -29,7 +26,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+
 import org.apache.commons.io.FileUtils;
 
 
@@ -232,7 +229,7 @@ class UploadImage extends AsyncTask<Void , Void , Void>{
         File[] file = directory.listFiles();
         for (File f : file){
             try {
-                POST_Data(f.getAbsolutePath());
+               Constants.DETECT =  POST_Data(f.getAbsolutePath());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -240,8 +237,8 @@ class UploadImage extends AsyncTask<Void , Void , Void>{
         return null;
     }
 
-    public String POST_Data(String filepath) throws Exception {
-
+    private String POST_Data(String filepath) throws Exception {
+        String detect;
         HttpURLConnection connection = null;
         DataOutputStream outputStream = null;
         InputStream inputStream = null;
@@ -260,7 +257,7 @@ class UploadImage extends AsyncTask<Void , Void , Void>{
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Connection", "Keep-Alive");
         connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-        connection.setRequestProperty("Content-Type", "multipart/image; boundary="+boundary);
+        connection.setRequestProperty("Content-Type", "Multipart/image; boundary="+boundary);
         outputStream = new DataOutputStream(connection.getOutputStream());
         outputStream.writeBytes("--" + boundary + "\r\n");
         outputStream.writeBytes("Content-Disposition: form-data; name=\"" + "img_upload" + "\"; filename=\"" + q[idx] +"\"" + "\r\n");
@@ -284,7 +281,7 @@ class UploadImage extends AsyncTask<Void , Void , Void>{
         if (status == HttpURLConnection.HTTP_OK) {
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
@@ -293,9 +290,10 @@ class UploadImage extends AsyncTask<Void , Void , Void>{
             fileInputStream.close();
             outputStream.flush();
             outputStream.close();
-            return response.toString();
+            detect = response.toString();
         } else {
             throw new Exception("Non ok response returned");
         }
+        return detect;
     }
 }
